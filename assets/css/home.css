@@ -1,0 +1,473 @@
+/* ==========================================================================
+   LucFlori — pagina principală
+   Elementul-semnătură: „peretele de culori" — planșa de varietăți a
+   producătorului, sortată după nuanța reală a petalei.
+   ========================================================================== */
+
+/* --- erou --------------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  overflow: hidden;              /* peretele iese spre dreapta, fără scroll orizontal */
+  border-bottom: 1px solid var(--c-line);
+  background: linear-gradient(180deg, var(--c-surface) 0%, var(--c-page) 100%);
+}
+
+.hero__in {
+  display: grid;
+  gap: var(--s-7);
+  /* aliniat la stânga cu restul paginii, dar fără margine în dreapta:
+     coloana cu peretele merge până la marginea ecranului */
+  padding-inline: max(var(--gutter), (100vw - var(--w-page)) / 2 + var(--gutter)) 0;
+  padding-block: clamp(2.5rem, 1.5rem + 4vw, 5.5rem) 0;
+}
+@media (min-width: 62rem) {
+  .hero__in {
+    grid-template-columns: minmax(0, 36rem) minmax(0, 1fr);
+    gap: clamp(2rem, 1rem + 3vw, 4.5rem);
+    align-items: center;
+    padding-block: clamp(3rem, 2rem + 3vw, 5.5rem);
+  }
+}
+
+.hero__copy { position: relative; z-index: 2; }
+
+.hero h1 {
+  font-size: var(--t-h1);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.035em;
+  margin-block: var(--s-5) var(--s-5);
+  font-weight: 700;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--c-orange);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin-top: var(--s-6);
+}
+
+/* cifrele: font mono, aliniate pe o grilă cu linii subțiri */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: var(--s-7);
+  border-top: 1px solid var(--c-line-strong);
+}
+@media (min-width: 40rem) and (max-width: 61.99rem) {
+  .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.stat {
+  padding: var(--s-4) var(--s-4) var(--s-4) 0;
+  border-bottom: 1px solid var(--c-line);
+}
+@media (min-width: 40rem) and (max-width: 61.99rem) { .stat { border-bottom: 0; } }
+
+.stat__n {
+  font-family: var(--f-mono);
+  font-variant-numeric: var(--num-tabular);
+  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.4rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  display: block;
+}
+.stat__n sup { font-size: 0.5em; top: -0.7em; }
+.stat__l {
+  display: block;
+  margin-top: var(--s-2);
+  font-size: var(--t-eyebrow);
+  font-family: var(--f-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+
+/* --- peretele de culori ------------------------------------------------- */
+
+.wall { position: relative; }
+
+
+.wall__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(3.5rem, 1fr));
+  gap: 1px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-right: 0;
+  max-height: 27rem;
+  overflow: hidden;
+}
+@media (min-width: 62rem) { .wall__grid { max-height: 30rem; } }
+
+.wall__cell {
+  position: relative;
+  outline: 1px solid var(--c-line);
+  display: block;
+  aspect-ratio: 1;
+  background: var(--c-surface);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  /* starea inițială pentru dezvăluirea în cascadă */
+  opacity: 0;
+  transform: scale(0.82);
+  animation: cell-in var(--dur-3) var(--ease-out) forwards;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes cell-in { to { opacity: 1; transform: none; } }
+
+.wall__cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.wall__cell:hover img,
+.wall__cell:focus-visible img { transform: scale(1.12); }
+
+.wall__cell::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: var(--cell, var(--c-orange));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.wall__cell:hover::after,
+.wall__cell:focus-visible::after { transform: scaleX(1); }
+
+/* eticheta care urmărește cursorul pe perete */
+.wall__tag {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  background: var(--c-ink);
+  color: #fff;
+  font-family: var(--f-mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.6rem;
+  border-radius: 2px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -125%);
+  transition: opacity var(--dur-1) var(--ease-out);
+}
+.wall__tag[data-on] { opacity: 1; }
+.wall__tag b { color: var(--c-orange); font-weight: 500; }
+
+.wall__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2) var(--s-5);
+  padding: var(--s-4) var(--gutter) var(--s-5) 0;
+  max-width: 46rem;
+  font-family: var(--f-mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+.wall__foot a { color: var(--c-ink); }
+
+/* bara de nuanțe: gradientul culorilor reale din sortiment */
+.hue-rail {
+  height: 4px;
+  flex: 1 1 8rem;
+  min-width: 6rem;
+  border-radius: 999px;
+  background: var(--hue-rail, var(--c-line-strong));
+}
+
+/* --- povestea + creșterea suprafeței ------------------------------------ */
+
+.story {
+  display: grid;
+  gap: var(--s-7);
+}
+@media (min-width: 58rem) {
+  .story {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 1rem + 4vw, 5rem);
+    align-items: start;
+  }
+}
+
+.story__figure { position: relative; }
+.story__figure img {
+  width: 100%;
+  border-radius: var(--r-panel);
+  background: var(--c-page-2);
+}
+.story__figure figcaption {
+  margin-top: var(--s-3);
+  font-family: var(--f-mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+
+/* graficul de suprafață: coloane construite din date reale */
+.growth {
+  margin-top: var(--s-7);
+  border-top: 1px solid var(--c-line-strong);
+}
+.growth__row {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s-4);
+  padding-block: var(--s-4);
+  border-bottom: 1px solid var(--c-line);
+}
+.growth__year {
+  font-family: var(--f-mono);
+  font-variant-numeric: var(--num-tabular);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.growth__bar {
+  height: 0.6rem;
+  background: var(--c-page-2);
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+}
+.growth__bar span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w, 0%);
+  background: linear-gradient(90deg, var(--c-green) 0%, var(--c-orange) 100%);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 900ms var(--ease-out);
+}
+.growth__row.is-in .growth__bar span { transform: scaleX(1); }
+.growth__val {
+  font-family: var(--f-mono);
+  font-variant-numeric: var(--num-tabular);
+  font-size: var(--t-label);
+  color: var(--c-ink-2);
+  text-align: right;
+}
+.growth__val small { display: block; }
+.growth__val small { color: var(--c-ink-3); }
+.growth__note {
+  margin-top: var(--s-4);
+  font-size: var(--t-small);
+  color: var(--c-ink-3);
+}
+
+/* --- tipuri de gerbera -------------------------------------------------- */
+
+.types {
+  display: grid;
+  gap: 1px;
+  background: var(--c-line);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-panel);
+  overflow: hidden;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 40rem) { .types { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 64rem) { .types { grid-template-columns: repeat(4, 1fr); } }
+
+.type {
+  background: var(--c-surface);
+  padding: var(--s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  text-decoration: none;
+  transition: background var(--dur-1) var(--ease-out);
+}
+.type:hover { background: var(--c-page); }
+
+/* prima celulă e mai mare: rupe grila uniformă.
+   Ultimele două umplu rândul de jos, ca să nu rămână goluri. */
+@media (min-width: 64rem) {
+  .type--lead { grid-column: span 2; grid-row: span 2; justify-content: space-between; }
+  .type:nth-last-child(-n+2) { grid-column: span 2; }
+  .type:nth-last-child(-n+2) .type__heads img { width: 4rem; height: 4rem; }
+  .type--lead .type__heads img { width: 5.5rem; height: 5.5rem; }
+  .type--lead .type__name { font-size: var(--t-h3); }
+}
+
+.type__heads { display: flex; gap: var(--s-2); }
+.type__heads img {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  background: var(--c-surface);
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.type:hover .type__heads img:nth-child(1) { transform: translateY(-3px) rotate(-4deg); }
+.type:hover .type__heads img:nth-child(3) { transform: translateY(-3px) rotate(4deg); }
+
+.type__name {
+  font-family: var(--f-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.type__count {
+  font-family: var(--f-mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.1em;
+  color: var(--c-orange);
+  text-transform: uppercase;
+}
+.type__note {
+  font-size: var(--t-small);
+  color: var(--c-ink-2);
+  line-height: 1.5;
+  margin-top: auto;
+}
+
+/* --- galerie foto ------------------------------------------------------- */
+
+.shots {
+  display: grid;
+  gap: var(--s-4);
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 56rem) {
+  .shots { grid-template-columns: 1.6fr 1fr 1fr; align-items: stretch; }
+  .shots figure:first-child { grid-row: span 2; }
+}
+.shots figure { margin: 0; position: relative; overflow: hidden; border-radius: var(--r-panel); background: var(--c-page-2); }
+.shots img { width: 100%; height: 100%; object-fit: cover; }
+.shots figcaption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: var(--s-5) var(--s-4) var(--s-3);
+  background: linear-gradient(180deg, transparent, oklch(21% 0.018 155 / 0.78));
+  color: #fff;
+  font-family: var(--f-mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* --- bandă de contact -------------------------------------------------- */
+
+.contact {
+  background: var(--c-ink);
+  color: oklch(92% 0.008 155);
+  border-radius: var(--r-panel);
+  padding: clamp(1.75rem, 1.2rem + 2.5vw, 3.5rem);
+  display: grid;
+  gap: var(--s-7);
+}
+@media (min-width: 56rem) {
+  .contact { grid-template-columns: minmax(0, 1fr) minmax(0, 22rem); gap: var(--s-8); align-items: start; }
+}
+.contact h2 { font-size: var(--t-h2); color: #fff; }
+.contact .eyebrow { color: oklch(72% 0.02 155); }
+.contact p { color: oklch(84% 0.01 155); }
+
+.contact__list { list-style: none; padding: 0; display: grid; gap: var(--s-4); }
+.contact__list dt {
+  font-family: var(--f-mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: oklch(66% 0.02 155);
+}
+.contact__list dd {
+  margin: var(--s-1) 0 0;
+  font-size: 1.0625rem;
+}
+.contact__list a { color: #fff; text-decoration-color: var(--c-orange); text-underline-offset: 3px; }
+.contact__list a:hover { color: var(--c-orange); }
+
+.hours {
+  border: 1px solid oklch(35% 0.02 155);
+  border-radius: var(--r-card);
+  padding: var(--s-5);
+}
+.hours dl { display: grid; gap: var(--s-3); margin: 0; }
+.hours div { display: flex; justify-content: space-between; gap: var(--s-4); font-size: var(--t-small); }
+.hours dt { color: oklch(80% 0.01 155); }
+.hours dd { margin: 0; font-family: var(--f-mono); font-size: var(--t-label); }
+.hours [data-closed] { color: oklch(62% 0.02 155); }
+
+/* --- culoare pe secțiuni ------------------------------------------------
+   Fiecare secțiune are propria spălare, ca parcurgerea paginii să treacă
+   prin paletă. Fundalurile stau la ~97% luminozitate: textul rămâne lizibil. */
+.sec-sun   { background: var(--wash-sun); }
+.sec-rose  { background: var(--wash-rose); }
+.sec-leaf  { background: var(--wash-leaf); }
+.sec-peach { background: var(--wash-peach); }
+
+/* tipurile primesc accentul propriu, luat dintr-un cultivar reprezentativ */
+.type { position: relative; }
+.type::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--accent, var(--c-orange));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.type:hover::before { transform: scaleX(1); }
+.type:hover { background: var(--tint, var(--c-page)); }
+.type__count { color: var(--accent-ink, var(--c-orange-deep)); }
+
+/* peretele: pe lângă dezvăluirea în cascadă, capul floral se ridică la hover */
+.wall__cell { transition: z-index 0s; }
+.wall__cell:hover, .wall__cell:focus-visible { z-index: 3; }
+
+/* cifrele din erou urcă la intrarea în pagină */
+.stat__n { animation: stat-in 700ms var(--ease-out) both; }
+.stat:nth-child(2) .stat__n { animation-delay: 90ms; }
+.stat:nth-child(3) .stat__n { animation-delay: 180ms; }
+.stat:nth-child(4) .stat__n { animation-delay: 270ms; }
+@keyframes stat-in { from { opacity: 0; transform: translateY(8px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .stat__n { animation: none; }
+}
+
+/* --- tipurile pe fundal închis: capetele florale ies în față ------------- */
+.sec-dark .types {
+  background: oklch(32% 0.02 155);
+  border-color: oklch(32% 0.02 155);
+}
+.sec-dark .type { background: var(--c-surface); color: var(--c-ink); }
+.sec-dark .type:hover { background: var(--tint, var(--c-page)); }
+.sec-dark .type__note { color: var(--c-ink-2); }
+
+/* --- cifrele din erou: mari, în fontul de titlu -------------------------- */
+.stat__n {
+  font-family: var(--f-display);
+  font-size: clamp(1.75rem, 1.2rem + 2.2vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+.stat__n sup { font-size: 0.42em; top: -0.9em; }
+.stat { border-bottom: 1px solid var(--c-line); }
+
+/* peretele are mai multă prezență */
+@media (min-width: 62rem) { .wall__grid { max-height: 34rem; } }
+
+/* butonul din blocul de comenzi: portocaliul de brand pe fundal închis */
+.contact .btn { --btn-bg: var(--c-orange); --btn-fg: #fff; border-color: var(--c-orange); }
+.contact .btn:hover { --btn-bg: #fff; --btn-fg: var(--c-ink); border-color: #fff; }
+.contact .btn::before { background: linear-gradient(90deg, #fff, oklch(96% 0.01 155)); }

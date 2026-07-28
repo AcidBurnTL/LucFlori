@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# unelte locale (setări Claude Code, skill-uri instalate) — nu fac parte din site
+.claude/
+
+# capturi și fișiere temporare
+.playwright-mcp/
+*.log

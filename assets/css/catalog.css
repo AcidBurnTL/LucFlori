@@ -1,0 +1,389 @@
+/* ==========================================================================
+   LucFlori — catalogul de sortiment (filtre, grilă, fișă, listă de cerere)
+   ========================================================================== */
+
+.cat-head {
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-surface);
+  padding-block: var(--s-7) var(--s-6);
+}
+.cat-head h1 {
+  font-size: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
+  letter-spacing: -0.03em;
+  margin-block: var(--s-4) var(--s-3);
+}
+
+/* --- bara de filtre ----------------------------------------------------- */
+
+.filters {
+  position: sticky;
+  top: 4.25rem;
+  z-index: 30;
+  background: var(--c-glass);
+  backdrop-filter: blur(12px) saturate(1.4);
+  border-bottom: 1px solid var(--c-line);
+}
+.filters__in { padding-block: var(--s-4); display: grid; gap: var(--s-4); }
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+}
+.filter-row__label {
+  font-family: var(--f-mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+  flex: 0 0 4.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--c-line-strong);
+  background: var(--c-surface);
+  color: var(--c-ink-2);
+  border-radius: var(--r-chip);
+  padding: 0.4rem 0.8rem;
+  font-family: var(--f-mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color var(--dur-1), background var(--dur-1), color var(--dur-1);
+}
+.chip:hover { border-color: var(--c-ink-3); color: var(--c-ink); }
+.chip[aria-pressed="true"] {
+  background: var(--c-ink);
+  border-color: var(--c-ink);
+  color: #fff;
+}
+.chip__n { opacity: 0.55; font-size: 0.9em; font-variant-numeric: var(--num-tabular); }
+.chip__dot {
+  width: 0.7rem; height: 0.7rem;
+  border-radius: 50%;
+  background: var(--dot, var(--c-line-strong));
+  box-shadow: inset 0 0 0 1px oklch(21% 0.018 155 / 0.18);
+  flex: none;
+}
+.chip--new[aria-pressed="true"] { background: var(--c-orange-deep); border-color: var(--c-orange-deep); }
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  border: 1px solid var(--c-line-strong);
+  background: var(--c-surface);
+  border-radius: var(--r-chip);
+  padding: 0.35rem 0.9rem;
+  flex: 1 1 12rem;
+  max-width: 22rem;
+}
+.search input {
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--t-small);
+  padding: 0.25rem 0;
+  width: 100%;
+  min-width: 0;
+}
+/* inelul de focalizare rămâne pentru navigarea de la tastatură;
+   se ascunde doar la click, unde chenarul câmpului e suficient */
+.search input:focus:not(:focus-visible) { outline: none; }
+.search:focus-within {
+  border-color: var(--c-ink);
+  box-shadow: 0 0 0 3px oklch(21% 0.018 155 / 0.08);
+}
+.search svg { flex: none; color: var(--c-ink-3); }
+
+.filters__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3) var(--s-5);
+  font-family: var(--f-mono);
+  font-size: var(--t-eyebrow);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+.filters__meta b { color: var(--c-ink); font-weight: 600; }
+.link-reset {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--c-orange-deep);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --- grila de cultivaruri ---------------------------------------------- */
+
+.grid {
+  display: grid;
+  gap: var(--s-4);
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  padding-block: var(--s-6) var(--s-7);
+  list-style: none;
+  margin: 0;
+}
+@media (min-width: 48rem) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: var(--s-5); }
+}
+
+.card {
+  position: relative;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-card);
+  overflow: hidden;
+  transition: border-color var(--dur-1) var(--ease-out),
+              box-shadow var(--dur-2) var(--ease-out),
+              transform var(--dur-2) var(--ease-out);
+}
+.card:hover {
+  border-color: var(--c-line-strong);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
+}
+.card:has(:focus-visible) { border-color: var(--c-orange); }
+
+.card__open {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.card__img {
+  aspect-ratio: 1;
+  background: var(--c-surface);
+  position: relative;
+}
+.card__img img { width: 100%; height: 100%; object-fit: cover; }
+
+/* linia de culoare: culoarea reală a petalei, măsurată din fotografie */
+.card__hue {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 4px;
+  background: var(--hue);
+}
+
+.card__body {
+  padding: var(--s-3) var(--s-3) var(--s-4);
+  border-top: 1px solid var(--c-line);
+  display: grid;
+  gap: 0.2rem;
+}
+.card__name {
+  font-family: var(--f-mono);
+  overflow-wrap: break-word;
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.25;
+}
+.card__cat {
+  font-size: var(--t-eyebrow);
+  color: var(--c-ink-3);
+  font-family: var(--f-mono);
+  letter-spacing: 0.06em;
+}
+
+.badge-new {
+  position: absolute;
+  top: var(--s-2); left: var(--s-2);
+  background: var(--c-green-deep);
+  color: #fff;
+  font-family: var(--f-mono);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.45rem;
+  border-radius: var(--r-chip);
+}
+
+/* butonul de adăugare în listă */
+.card__pick {
+  position: absolute;
+  top: var(--s-2); right: var(--s-2);
+  width: 1.9rem; height: 1.9rem;
+  border-radius: 50%;
+  border: 1px solid var(--c-line-strong);
+  background: var(--c-glass);
+  color: var(--c-ink-2);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity var(--dur-1), background var(--dur-1), color var(--dur-1), border-color var(--dur-1);
+}
+.card:hover .card__pick,
+.card__pick:focus-visible,
+.card__pick[aria-pressed="true"] { opacity: 1; }
+.card__pick:hover { border-color: var(--c-ink); color: var(--c-ink); }
+.card__pick[aria-pressed="true"] {
+  background: var(--c-green-deep);
+  border-color: var(--c-green-deep);
+  color: #fff;
+}
+
+.empty {
+  padding: var(--s-8) 0;
+  text-align: center;
+  color: var(--c-ink-2);
+}
+.empty h2 { font-size: var(--t-h3); margin-bottom: var(--s-3); }
+
+/* --- fișa cultivarului (dialog) ---------------------------------------- */
+
+dialog.sheet {
+  border: 0;
+  padding: 0;
+  margin: auto;              /* centrat în viewport */
+  width: min(52rem, calc(100vw - 2rem));
+  max-height: min(90vh, 44rem);
+  border-radius: var(--r-panel);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+}
+dialog.sheet { overscroll-behavior: contain; }
+dialog.sheet::backdrop { background: oklch(21% 0.018 155 / 0.55); backdrop-filter: blur(3px); }
+
+.sheet__in { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 44rem) { .sheet__in { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+
+.sheet__fig { background: var(--c-surface); position: relative; border-bottom: 1px solid var(--c-line); }
+@media (min-width: 44rem) { .sheet__fig { border-bottom: 0; border-right: 1px solid var(--c-line); } }
+.sheet__fig img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+
+.sheet__body { padding: clamp(1.25rem, 1rem + 1.5vw, 2.25rem); display: grid; gap: var(--s-4); align-content: start; }
+.sheet__name {
+  font-family: var(--f-display);
+  font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.sheet__spec { display: grid; gap: var(--s-3); margin: 0; }
+.sheet__spec div { display: flex; justify-content: space-between; gap: var(--s-4); padding-bottom: var(--s-3); border-bottom: 1px solid var(--c-line); }
+.sheet__spec dt { font-family: var(--f-mono); font-size: var(--t-eyebrow); letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-ink-3); }
+.sheet__spec dd { margin: 0; font-size: var(--t-small); text-align: right; }
+.sheet__swatch { display: inline-flex; align-items: center; gap: var(--s-2); }
+.sheet__swatch i {
+  width: 1rem; height: 1rem; border-radius: 50%;
+  background: var(--sw);
+  box-shadow: inset 0 0 0 1px oklch(21% 0.018 155 / 0.2);
+}
+.sheet__actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-2); }
+.sheet__close {
+  position: absolute;
+  top: var(--s-3); right: var(--s-3);
+  width: 2.25rem; height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--c-line-strong);
+  background: var(--c-glass);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  z-index: 2;
+}
+.sheet__close:hover { background: var(--c-ink); color: #fff; border-color: var(--c-ink); }
+.sheet__nav { display: flex; gap: var(--s-2); }
+
+/* --- lista de cerere (bara de jos) ------------------------------------- */
+
+.tray {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 45;
+  background: var(--c-ink);
+  color: #fff;
+  transform: translateY(101%);
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.tray[data-open] { transform: none; }
+
+.tray__in {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3) var(--s-5);
+  padding-block: var(--s-4);
+  padding-bottom: calc(var(--s-4) + env(safe-area-inset-bottom));
+}
+.tray__count {
+  font-family: var(--f-mono);
+  font-size: var(--t-label);
+  letter-spacing: 0.06em;
+  font-variant-numeric: var(--num-tabular);
+}
+.tray__count b { color: var(--c-orange); }
+.tray__names {
+  flex: 1 1 14rem;
+  min-width: 0;
+  font-size: var(--t-small);
+  color: oklch(82% 0.01 155);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tray__actions { display: flex; gap: var(--s-2); margin-left: auto; }
+.tray .btn { --btn-bg: var(--c-orange); --btn-fg: #fff; border-color: var(--c-orange); }
+.tray .btn:hover { --btn-bg: #fff; --btn-fg: var(--c-ink); border-color: #fff; }
+.tray .btn--ghost { --btn-bg: transparent; --btn-fg: #fff; border-color: oklch(45% 0.02 155); }
+.tray .btn--ghost:hover { --btn-fg: var(--c-ink); background: #fff; border-color: #fff; }
+
+body[data-tray] { padding-bottom: 5.5rem; }
+
+/* --- culoare și mișcare în grilă ---------------------------------------- */
+
+/* cardul se colorează cu propria culoare a florii la hover */
+.card {
+  --tint: color-mix(in oklab, var(--hue) 8%, white);
+  animation: card-in 460ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 22ms);
+}
+@keyframes card-in { from { opacity: 0; transform: translateY(14px) scale(0.985); } }
+
+.card:hover {
+  background: var(--tint);
+  border-color: color-mix(in oklab, var(--hue) 42%, white);
+}
+.card:hover .card__body { border-top-color: color-mix(in oklab, var(--hue) 28%, white); }
+.card__img img { transition: transform var(--dur-3) var(--ease-out); }
+.card:hover .card__img img { transform: scale(1.07); }
+
+/* bara de culoare de sub floare crește la hover */
+.card__hue { transition: height var(--dur-2) var(--ease-out); }
+.card:hover .card__hue { height: 7px; }
+
+/* butoanele de filtrare: apăsarea se simte */
+.chip { transition: border-color var(--dur-1), background var(--dur-1),
+                    color var(--dur-1), transform var(--dur-1) var(--ease-out); }
+.chip:active { transform: scale(0.96); }
+.chip[aria-pressed="true"] .chip__dot { box-shadow: inset 0 0 0 1px #fff6; }
+
+/* antetul catalogului primește o spălare caldă */
+.cat-head { background: linear-gradient(180deg, var(--wash-peach), var(--c-surface)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .card { animation: none; }
+}
