@@ -59,13 +59,22 @@
 
   <div class="filters">
     <div class="wrap filters__in">
-      <div class="filter-row" role="group" aria-label="Filtrează după tip">
+      <div class="filter-row filter-facet">
         <span class="filter-row__label" aria-hidden="true">Tip</span>
-        <div class="filter-row" id="fTypes"></div>
+        <div class="filter-row filter-chips" id="fTypes" role="group" aria-label="Filtrează după tip"></div>
+        <label class="filter-select">
+          <span class="sr-only">Filtrează după tip</span>
+          <select id="fTypesSelect" aria-label="Filtrează după tip"></select>
+        </label>
       </div>
-      <div class="filter-row" role="group" aria-label="Filtrează după culoare">
+      <div class="filter-row filter-facet">
         <span class="filter-row__label" aria-hidden="true">Culoare</span>
-        <div class="filter-row" id="fColors"></div>
+        <div class="filter-row filter-chips" id="fColors" role="group" aria-label="Filtrează după culoare"></div>
+        <label class="filter-select">
+          <span class="sr-only">Filtrează după culoare</span>
+          <span class="chip__dot filter-select__dot" id="fColorsDot" hidden></span>
+          <select id="fColorsSelect" aria-label="Filtrează după culoare"></select>
+        </label>
       </div>
       <div class="filter-row">
         <span class="filter-row__label" aria-hidden="true">Caută</span>

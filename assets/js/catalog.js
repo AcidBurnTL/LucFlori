@@ -20,6 +20,9 @@
   var el = {
     types: document.getElementById("fTypes"),
     colors: document.getElementById("fColors"),
+    typesSelect: document.getElementById("fTypesSelect"),
+    colorsSelect: document.getElementById("fColorsSelect"),
+    colorsDot: document.getElementById("fColorsDot"),
     search: document.getElementById("fSearch"),
     onlyNew: document.getElementById("fNew"),
     onlyNewN: document.getElementById("fNewN"),
@@ -70,17 +73,33 @@
     });
 
     el.types.appendChild(chip("", "Toate", VS.length, "tip"));
+    el.typesSelect.appendChild(facetOption("", "Toate"));
     CATS.forEach(function (c) {
-      if (byCat[c.k]) el.types.appendChild(chip(c.k, c.label, byCat[c.k], "tip"));
+      if (byCat[c.k]) {
+        el.types.appendChild(chip(c.k, c.label, byCat[c.k], "tip"));
+        el.typesSelect.appendChild(facetOption(c.k, c.label));
+      }
     });
 
     el.colors.appendChild(chip("", "Toate", VS.length, "culoare"));
+    el.colorsSelect.appendChild(facetOption("", "Toate"));
     FAMS.forEach(function (f) {
       if (!byFam[f.k]) return;
       var repr = VS.filter(function (v) { return v.f === f.k; })
                    .sort(function (a, b) { return b.h - a.h; })[0];
       el.colors.appendChild(chip(f.k, f.label, byFam[f.k], "culoare", repr ? repr.x : null));
+      var opt = facetOption(f.k, f.label);
+      if (repr) opt.setAttribute("data-dot", repr.x);
+      el.colorsSelect.appendChild(opt);
     });
+  }
+
+  function facetOption(value, label) {
+    var o = document.createElement("option");
+    o.value = value;
+    o.setAttribute("data-label", label);
+    o.textContent = label;
+    return o;
   }
 
   /* Numărul de pe fiecare buton arată câte rezultate ar da acel buton
@@ -146,6 +165,30 @@
     el.onlyNew.setAttribute("aria-pressed", String(state.nou));
   }
 
+  /* Listele de pe telefon folosesc aceeași stare ca butoanele. */
+  function syncSelects() {
+    syncOneSelect(el.typesSelect, "tip");
+    syncOneSelect(el.colorsSelect, "culoare");
+    if (!el.colorsDot) return;
+    var chosen = el.colorsSelect.options[el.colorsSelect.selectedIndex];
+    var dot = chosen ? chosen.getAttribute("data-dot") : "";
+    if (state.culoare && dot) {
+      el.colorsDot.hidden = false;
+      el.colorsDot.style.setProperty("--dot", dot);
+    } else {
+      el.colorsDot.hidden = true;
+    }
+  }
+
+  function syncOneSelect(sel, group) {
+    Array.prototype.forEach.call(sel.options, function (o) {
+      var n = facet(group, o.value);
+      o.textContent = o.getAttribute("data-label") + " " + n;
+      o.disabled = n === 0 && state[group] !== o.value;
+    });
+    if (sel.value !== state[group]) sel.value = state[group];
+  }
+
   /* ---------- randare ---------- */
   function apply(pushUrl) {
     var q = norm(state.q.trim());
@@ -160,6 +203,7 @@
     render();
     syncChips();
     syncCounts();
+    syncSelects();
 
     el.count.textContent = String(shown.length);
     var bits = [];
@@ -340,6 +384,14 @@
   syncPicked();
   if (deep) openSheet(deep);
 
+  el.typesSelect.addEventListener("change", function () {
+    state.tip = el.typesSelect.value;
+    apply(true);
+  });
+  el.colorsSelect.addEventListener("change", function () {
+    state.culoare = el.colorsSelect.value;
+    apply(true);
+  });
   el.search.addEventListener("input", function () {
     state.q = el.search.value;
     apply(true);
