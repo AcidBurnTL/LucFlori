@@ -40,6 +40,56 @@
   flex: 0 0 4.5rem;
 }
 
+/* Pe telefon, tipul și culoarea stau în două liste compacte.
+   De la 48rem în sus rămân butoanele, neschimbate. */
+.filter-select { display: none; }
+
+@media (max-width: 47.99rem) {
+  .filter-facet { flex-wrap: nowrap; }
+  .filter-facet .filter-chips { display: none; }
+  .filter-facet .filter-select {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 100%;
+    position: relative;
+  }
+  .filter-facet .filter-select select {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    border: 1px solid var(--c-line-strong);
+    background-color: var(--c-surface);
+    color: var(--c-ink);
+    border-radius: var(--r-chip);
+    padding: 0.45rem 2rem 0.45rem 0.9rem;
+    font-family: var(--f-mono);
+    font-size: var(--t-small);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    appearance: none;
+    text-overflow: ellipsis;
+  }
+  .filter-facet .filter-select::after {
+    content: "";
+    position: absolute;
+    right: 0.95rem;
+    top: 50%;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-right: 1.5px solid var(--c-ink-2);
+    border-bottom: 1.5px solid var(--c-ink-2);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+  .filter-facet .filter-select select:hover { border-color: var(--c-ink-3); }
+  .filter-facet .filter-select__dot { flex: none; }
+}
+
 .chip {
   display: inline-flex;
   align-items: center;
